@@ -1,0 +1,12 @@
+# Python & Environments
+venv/
+__pycache__/
+.env
+
+# Massive Data & Weights (Do Not Sync to GitHub)
+data/
+checkpoints/
+compile/
+
+# IDE
+.vscode/
