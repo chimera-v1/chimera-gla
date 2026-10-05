@@ -1,31 +1,7 @@
 import torch
 import traceback
-import json
-import os
 from model import ChimeraModel
-
-def log_error(err_type: str, msg: str, tb: str):
-    log_path = os.path.join(os.path.dirname(__file__), "..", "logs", "failed_code.json")
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    
-    error_data = {
-        "type": err_type,
-        "message": msg,
-        "traceback": tb
-    }
-    
-    logs = []
-    if os.path.exists(log_path):
-        with open(log_path, "r", encoding="utf-8") as f:
-            try:
-                logs = json.load(f)
-            except json.JSONDecodeError:
-                pass
-                
-    logs.append(error_data)
-    
-    with open(log_path, "w", encoding="utf-8") as f:
-        json.dump(logs, f, indent=2)
+from logger import ChimeraLogger
 
 def test_model_architecture():
     try:
@@ -58,7 +34,7 @@ def test_model_architecture():
     except Exception as e:
         tb = traceback.format_exc()
         print("Model test failed, logging to failed_code.json...")
-        log_error("AssertionError" if isinstance(e, AssertionError) else type(e).__name__, str(e), tb)
+        ChimeraLogger.log_failed_code("AssertionError" if isinstance(e, AssertionError) else type(e).__name__, str(e), tb)
         raise
 
 if __name__ == "__main__":

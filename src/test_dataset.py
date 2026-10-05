@@ -1,40 +1,17 @@
 import os
 import shutil
 import traceback
-import json
 from dataset import ChimeraDatasetStreamer
 from tokenizer import ChimeraTokenizer
-
-def log_error(err_type: str, msg: str, tb: str):
-    log_path = os.path.join(os.path.dirname(__file__), "..", "logs", "failed_code.json")
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    
-    error_data = {
-        "type": err_type,
-        "message": msg,
-        "traceback": tb
-    }
-    
-    logs = []
-    if os.path.exists(log_path):
-        with open(log_path, "r", encoding="utf-8") as f:
-            try:
-                logs = json.load(f)
-            except json.JSONDecodeError:
-                pass
-                
-    logs.append(error_data)
-    
-    with open(log_path, "w", encoding="utf-8") as f:
-        json.dump(logs, f, indent=2)
+from logger import ChimeraLogger
 
 def setup_mock_data(data_dir: str):
     if os.path.exists(data_dir):
-        shutil.rmtree(data_dir)
+        shutil.rmtree(data_dir, ignore_errors=True)
     
-    os.makedirs(os.path.join(data_dir, "language"))
-    os.makedirs(os.path.join(data_dir, "code"))
-    os.makedirs(os.path.join(data_dir, "math"))
+    os.makedirs(os.path.join(data_dir, "language"), exist_ok=True)
+    os.makedirs(os.path.join(data_dir, "code"), exist_ok=True)
+    os.makedirs(os.path.join(data_dir, "math"), exist_ok=True)
     
     with open(os.path.join(data_dir, "language", "doc1.txt"), "w", encoding="utf-8") as f:
         f.write("Hello world.\nThis is a language test.")
@@ -70,7 +47,7 @@ def test_dataset_streamer():
     except Exception as e:
         tb = traceback.format_exc()
         print("Test failed, logging to failed_code.json...")
-        log_error("AssertionError" if isinstance(e, AssertionError) else type(e).__name__, str(e), tb)
+        ChimeraLogger.log_failed_code("AssertionError" if isinstance(e, AssertionError) else type(e).__name__, str(e), tb)
         raise
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@
 - [x] **Sprint 1 (Immediate Next):** Build custom 20,000-word vocabulary in `src/tokenizer.py` with custom handling for digits and code indentation[cite: 31, 32].
 - [x] **Sprint 2:** Implement streaming dataset loader in `src/dataset.py` (Curriculum: Language → Code → Math)[cite: 31, 32].
 - [x] **Sprint 3:** Build 45M Parameter core backbone using 6 recurrent weight-sharing blocks and BitNet ternary quantizer[cite: 31].
-- [ ] **Sprint 4:** Connect structured error logging to `logs/hallucinations.json`, `logs/failed_math.json`, and `logs/failed_code.json`[cite: 31, 32].
+- [x] **Sprint 4:** Connect structured error logging to `logs/hallucinations.json`, `logs/failed_math.json`, and `logs/failed_code.json`[cite: 31, 32].
 - [ ] **Sprint 5:** Execute 165 hours/week model training cycle using local GPU and cloud compute resources[cite: 31, 32].
 - [ ] **Sprint 6:** Quantize and shrink weights to 25–50 MB, verify sub-200 MB runtime ceiling, and integrate lightweight shell (<20 MB)[cite: 31].
 - [ ] **Sprint 7:** Release weights on Hugging Face (MIT license), publish architectural paper, and deploy desktop installers (Win/Mac/Linux)[cite: 31].
@@ -71,5 +71,15 @@
   * Implemented all compression and memory hacks: Logic-Gated MLA, ThinKV, GQA Hybrid, and 32-Slot Scratchpad.
   * Integrated execution controls: Thermal-Adaptive Throttling, MoD router, Speculative Decoding stub, and SSM (Mamba/RWKV proxy) mode.
   * Passed all architecture validations and parameter counts (44.8M parameters confirmed) in the offline local sandbox (`src/test_model.py`).
+* **Blockers:** None.
+* **Next Task:** Sprint 4: Connect structured error logging.
+
+### Sprint 4: Structured Failure Logging
+* **Date:** Current Session
+* **Completed:**
+  * Drafted architectural blueprint (`logger_blueprint.md`) outlining strict offline log routing.
+  * Authored centralized `src/logger.py` bridging directly into `logs/hallucinations.json`, `logs/failed_math.json`, and `logs/failed_code.json`.
+  * Refactored test scripts (`test_tokenizer.py`, `test_dataset.py`, `test_model.py`) to pipe sandbox failures through the central logger payload interface.
+  * Verified logging flow locally with zero external network API tracking (Compliance: Rule 1).
 * **Blockers:** None.
 * **Next Task:** Months 3-4 (Sprint 5): Execute 165 hours/week continuous training loop on the local RTX 5060, moving strictly from general language to code, then to math.
