@@ -1,12 +1,25 @@
-# Python & Environments
-venv/
-__pycache__/
-.env
+# Chimera AI - Ignore List
+# Compliant with Rule 4: Protected Scopes & File Routing
 
-# Massive Data & Weights (Do Not Sync to GitHub)
+# Datasets
 data/
-checkpoints/
-compile/
+!data/.keep
 
-# IDE
-.vscode/
+# Model Checkpoints (9-12 MB binary files)
+checkpoints/
+checkpoints_backup/
+checkpoints_backup.zip
+!checkpoints/.keep
+
+# Logs (We keep logs in Git, but ignore temporary OS files)
+*.log
+.DS_Store
+
+# Virtual Environments
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Local Configs
+.env
