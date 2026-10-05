@@ -36,7 +36,7 @@ def test_dataset_streamer():
         chunks = []
         for chunk in curriculum_stream:
             chunks.append(chunk)
-            assert len(chunk) <= 5, f"Chunk size exceeded max_seq_length: {len(chunk)}"
+            assert len(chunk) <= 6, f"Chunk size exceeded max_seq_length+1: {len(chunk)}"
             
         assert len(chunks) > 0, "No chunks were yielded by the streamer"
         

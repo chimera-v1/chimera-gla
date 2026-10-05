@@ -1,65 +1,57 @@
 import os
+import gc
 from typing import Generator, List
-from tokenizer import ChimeraTokenizer
 
 class ChimeraDatasetStreamer:
     """
-    Chimera Dataset Streamer
-    Features:
-    - Zero network dependencies: strictly reads from local `data/` directory.
-    - Generator-based streaming to ensure sub-200 MB RAM limit.
-    - Phased Curriculum: Language -> Code -> Math.
+    Max-Upgraded Dataset Streamer.
+    Strict Curriculum Sequencing (Language -> Code -> Math).
+    Uses heavy generator-based stream architecture yielding tightly packed chunks
+    to enforce the Sub-200 MB RAM Promise. Keeps maximum active memory buffer ~5-10 MB.
     """
-    def __init__(self, data_dir: str, tokenizer: ChimeraTokenizer, max_seq_length: int = 1024):
+    def __init__(self, data_dir: str, tokenizer, max_seq_length: int = 512):
         self.data_dir = data_dir
         self.tokenizer = tokenizer
         self.max_seq_length = max_seq_length
-        self.curriculum_phases = ["language", "code", "math"]
-        
-    def _stream_file(self, file_path: str) -> Generator[List[int], None, None]:
-        """
-        Streams a single file line by line to maintain a tiny memory footprint.
-        Yields encoded token lists.
-        """
+        self.curriculum = ["language", "code", "math"]
+
+    def _stream_file(self, file_path: str) -> Generator[str, None, None]:
+        """Reads extremely large files line-by-line via memory-safe IO generator."""
         if not os.path.exists(file_path):
             return
             
         with open(file_path, "r", encoding="utf-8") as f:
-            buffer = []
             for line in f:
-                encoded_line = self.tokenizer.encode(line)
-                buffer.extend(encoded_line)
-                
-                # Yield when buffer reaches max_seq_length
-                while len(buffer) >= self.max_seq_length:
-                    yield buffer[:self.max_seq_length]
-                    buffer = buffer[self.max_seq_length:]
-                    
-            # Yield any remaining tokens
-            if buffer:
-                yield buffer
-
-    def stream_phase(self, phase_name: str) -> Generator[List[int], None, None]:
-        """
-        Streams all data files within a specific curriculum phase directory.
-        """
-        if phase_name not in self.curriculum_phases:
-            raise ValueError(f"Unknown phase: {phase_name}")
-            
-        phase_dir = os.path.join(self.data_dir, phase_name)
-        if not os.path.exists(phase_dir):
-            # Create the directory structure if it doesn't exist for scaffolding
-            os.makedirs(phase_dir, exist_ok=True)
-            return
-            
-        for filename in os.listdir(phase_dir):
-            file_path = os.path.join(phase_dir, filename)
-            if os.path.isfile(file_path):
-                yield from self._stream_file(file_path)
+                yield line.strip()
 
     def stream_curriculum(self) -> Generator[List[int], None, None]:
         """
-        Master curriculum generator: Streams Language, then Code, then Math.
+        Flows continuously through the domains.
+        Packs strings tightly into fixed sequence length tensors.
+        Triggers garbage collection (gc.collect()) aggressively.
         """
-        for phase in self.curriculum_phases:
-            yield from self.stream_phase(phase)
+        for domain in self.curriculum:
+            domain_path = os.path.join(self.data_dir, domain)
+            if not os.path.exists(domain_path):
+                continue
+                
+            for filename in os.listdir(domain_path):
+                file_path = os.path.join(domain_path, filename)
+                
+                buffer = []
+                for line in self._stream_file(file_path):
+                    if not line:
+                        continue
+                        
+                    tokens = self.tokenizer.encode(line)
+                    buffer.extend(tokens)
+                    
+                    # Yield chunks of precisely `max_seq_length + 1` for next-token prediction
+                    while len(buffer) >= self.max_seq_length + 1:
+                        chunk = buffer[:self.max_seq_length + 1]
+                        buffer = buffer[self.max_seq_length + 1:]
+                        yield chunk
+                
+                # Force memory cleanup after every single file processed
+                buffer.clear()
+                gc.collect()

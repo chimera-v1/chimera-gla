@@ -9,5 +9,29 @@
     "message": "'ChimeraModel' object has no attribute 'insert_reasoning_tags'",
     "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Admin\\OneDrive\\Desktop\\ChimeraAI\\src\\test_model.py\", line 25, in test_model_architecture\n    tagged_seq = model.insert_reasoning_tags([100, 200, 300])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Admin\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python311\\site-packages\\torch\\nn\\modules\\module.py\", line 1972, in __getattr__\n    raise AttributeError(\nAttributeError: 'ChimeraModel' object has no attribute 'insert_reasoning_tags'\n",
     "timestamp": "2026-10-05T16:34:55.922033Z"
+  },
+  {
+    "type": "AttributeError",
+    "message": "'ChimeraTokenizer' object has no attribute 'train_from_text'",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Admin\\OneDrive\\Desktop\\ChimeraAI\\src\\test_tokenizer.py\", line 11, in test_tokenizer\n    tok.train_from_text(text)\n    ^^^^^^^^^^^^^^^^^^^\nAttributeError: 'ChimeraTokenizer' object has no attribute 'train_from_text'\n",
+    "timestamp": "2026-10-05T16:39:02.751986Z"
+  },
+  {
+    "type": "AssertionError",
+    "message": "Chunk size exceeded max_seq_length: 6",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Admin\\OneDrive\\Desktop\\ChimeraAI\\src\\test_dataset.py\", line 39, in test_dataset_streamer\n    assert len(chunk) <= 5, f\"Chunk size exceeded max_seq_length: {len(chunk)}\"\n           ^^^^^^^^^^^^^^^\nAssertionError: Chunk size exceeded max_seq_length: 6\n",
+    "timestamp": "2026-10-05T16:39:03.053727Z"
+  },
+  {
+    "type": "AssertionError",
+    "message": "Digit 1 not at expected vocab ID",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Admin\\OneDrive\\Desktop\\ChimeraAI\\src\\test_tokenizer.py\", line 18, in test_tokenizer\n    assert tok.vocab[\"1\"] == 11, \"Digit 1 not at expected vocab ID\"\n           ^^^^^^^^^^^^^^^^^^^^\nAssertionError: Digit 1 not at expected vocab ID\n",
+    "timestamp": "2026-10-05T16:40:04.164502Z"
+  },
+  {
+    "type": "AssertionError",
+    "message": "4-space indent not captured as token",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Admin\\OneDrive\\Desktop\\ChimeraAI\\src\\test_tokenizer.py\", line 30, in test_tokenizer\n    assert \"<INDENT_4>\" in tokens_code, \"4-space indent not captured as token\"\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 4-space indent not captured as token\n",
+    "timestamp": "2026-10-05T16:41:05.978560Z"
   }
 ]
