@@ -7,38 +7,38 @@ This ledger documents every feature specified across all six core technical doma
 ## Domain 1: The Core Brain
 *How the tiny AI model itself is built to be small, fast, and smart[cite: 20, 31].*
 
-1. **45-Million-Parameter Core Backbone:** A compact AI model small enough to run on an ordinary laptop or small chip without requiring expensive graphics cards[cite: 20, 31].
-2. **Recurrent Weight-Sharing Loop:** Reuses the same six building blocks three times in a row, allowing a small model to "think" in stages like a larger model[cite: 20, 31].
-3. **BitNet Ternary Quantization:** Shrinks internal values down to -1, 0, or +1, bringing the model size to 9–12 MB and enabling inference via simple addition instead of matrix multiplication[cite: 20, 31].
-4. **Multi-Head Latent Attention (MLA):** Compresses short-term context memory by roughly 6x[cite: 20, 31].
-5. **Logic-Gated MLA:** Locks crucial facts into memory to prevent degradation or garbling during reasoning[cite: 20, 31].
-6. **Mixture of Depths Router:** Bypasses unnecessary compute steps on simple text tokens (such as punctuation and whitespace), reducing wasted effort by 30–50%[cite: 20, 31].
-7. **GQA + Sparse Attention Hybrid:** Attends only to the 32 most relevant pieces of information rather than the full context[cite: 20, 31].
-8. **32-Slot Scratchpad:** Dedicated memory slots where the model stores intermediate variables and partial results while solving tasks[cite: 20, 31].
-9. **ThinKV Memory Compression:** Discards trivial thoughts during reasoning steps, reducing thinking memory by up to 95%[cite: 20, 31].
-10. **Speculative Decoding:** Generates and validates several prospective words in parallel, accelerating inference 2–3x[cite: 20, 31].
-11. **Thermal-Adaptive Throttling:** Monitors system temperature and scales down computational load if the machine begins overheating[cite: 20, 31].
-12. **RoPE & SwiGLU Building Blocks:** Core positional and feed-forward primitives to preserve word ordering and ensure smooth representational merging[cite: 20, 31].
-13. **Custom 20,000-Word Tokenizer:** Purpose-built vocabulary optimized for numeric strings and code indentation to eliminate common arithmetic and syntax mistakes[cite: 20, 31].
-14. **Protected Reasoning Tags:** Dedicated delimiter tokens isolating private internal reasoning from final user-facing responses[cite: 21, 31].
-15. **State Space Model (SSM) Mode:** CPU-first execution alternative that runs without a GPU for broad hardware compatibility[cite: 21, 31].
-16. **Sub-200 MB RAM Promise:** Hard architectural rule mandating that the model, database, and system footprint operate within roughly 200–500 MB of total memory[cite: 21, 31].
+1. [x] **45-Million-Parameter Core Backbone:** A compact AI model small enough to run on an ordinary laptop or small chip without requiring expensive graphics cards[cite: 20, 31].
+2. [x] **Recurrent Weight-Sharing Loop:** Reuses the same six building blocks three times in a row, allowing a small model to "think" in stages like a larger model[cite: 20, 31].
+3. [x] **BitNet Ternary Quantization:** Shrinks internal values down to -1, 0, or +1, bringing the model size to 9–12 MB and enabling inference via simple addition instead of matrix multiplication[cite: 20, 31].
+4. [x] **Multi-Head Latent Attention (MLA):** Compresses short-term context memory by roughly 6x[cite: 20, 31].
+5. [x] **Logic-Gated MLA:** Locks crucial facts into memory to prevent degradation or garbling during reasoning[cite: 20, 31].
+6. [x] **Mixture of Depths Router:** Bypasses unnecessary compute steps on simple text tokens (such as punctuation and whitespace), reducing wasted effort by 30–50%[cite: 20, 31].
+7. [x] **GQA + Sparse Attention Hybrid:** Attends only to the 32 most relevant pieces of information rather than the full context[cite: 20, 31].
+8. [x] **32-Slot Scratchpad:** Dedicated memory slots where the model stores intermediate variables and partial results while solving tasks[cite: 20, 31].
+9. [x] **ThinKV Memory Compression:** Discards trivial thoughts during reasoning steps, reducing thinking memory by up to 95%[cite: 20, 31].
+10. [ ] **Speculative Decoding:** Generates and validates several prospective words in parallel, accelerating inference 2–3x[cite: 20, 31].
+11. [ ] **Thermal-Adaptive Throttling:** Monitors system temperature and scales down computational load if the machine begins overheating[cite: 20, 31].
+12. [x] **RoPE & SwiGLU Building Blocks:** Core positional and feed-forward primitives to preserve word ordering and ensure smooth representational merging[cite: 20, 31].
+13. [x] **Custom 20,000-Word Tokenizer:** Purpose-built vocabulary optimized for numeric strings and code indentation to eliminate common arithmetic and syntax mistakes[cite: 20, 31].
+14. [x] **Protected Reasoning Tags:** Dedicated delimiter tokens isolating private internal reasoning from final user-facing responses[cite: 21, 31].
+15. [ ] **State Space Model (SSM) Mode:** CPU-first execution alternative that runs without a GPU for broad hardware compatibility[cite: 21, 31].
+16. [x] **Sub-200 MB RAM Promise:** Hard architectural rule mandating that the model, database, and system footprint operate within roughly 200–500 MB of total memory[cite: 21, 31].
 
 ---
 
 ## Domain 2: Knowledge & Reasoning
 *How the app looks things up, checks its own logic, and avoids making things up[cite: 22, 31].*
 
-17. **Micro-GraphRAG:** On-device local knowledge graph capturing facts and semantic relationships without external servers[cite: 22, 31].
-18. **Markdown / Vault Parser:** Ingests local markdown notes, folder trees, and Obsidian vaults, indexing headers, tags, and bi-directional links[cite: 22, 31].
-19. **Local Embedding Engine:** 22 MB offline embedding model converting text into semantic vectors without internet access[cite: 22, 31].
-20. **1-Hop Neighbor Expansion:** Retrieves immediately adjacent relational facts during graph lookups to enrich contextual depth[cite: 22, 31].
-21. **Retrieval-Augmented Thoughts (RAT):** Pauses mid-generation during reasoning steps to retrieve local facts and inject them into active context[cite: 22, 31].
-22. **Retrieval-Augmented Thought Tree (RATT):** Branches multiple retrieval-grounded reasoning paths concurrently prior to selecting the optimal solution[cite: 22, 31].
-23. **Multi-Critic Scratchpad (M-RAT):** Internal debate mechanism pitting a generator persona against a critic persona to identify logical errors[cite: 22, 31].
-24. **Symbolic Branch Pruning (Symb-RATT):** Evaluates arithmetic and logic through an exact code checker, discarding any branch that fails execution[cite: 22, 31].
-25. **Speculative RAG Drafting:** Pre-fetches predicted factual lookups before they are explicitly requested[cite: 22, 31].
-26. **Keyless Web Scraper Fallback:** Performs anonymous fallback web queries to retrieve context when local knowledge stores are insufficient[cite: 22, 31].
+17. [x] **Micro-GraphRAG:** On-device local knowledge graph capturing facts and semantic relationships without external servers[cite: 22, 31].
+18. [ ] **Markdown / Vault Parser:** Ingests local markdown notes, folder trees, and Obsidian vaults, indexing headers, tags, and bi-directional links[cite: 22, 31].
+19. [x] **Local Embedding Engine:** 22 MB offline embedding model converting text into semantic vectors without internet access[cite: 22, 31].
+20. [ ] **1-Hop Neighbor Expansion:** Retrieves immediately adjacent relational facts during graph lookups to enrich contextual depth[cite: 22, 31].
+21. [x] **Retrieval-Augmented Thoughts (RAT):** Pauses mid-generation during reasoning steps to retrieve local facts and inject them into active context[cite: 22, 31].
+22. [ ] **Retrieval-Augmented Thought Tree (RATT):** Branches multiple retrieval-grounded reasoning paths concurrently prior to selecting the optimal solution[cite: 22, 31].
+23. [ ] **Multi-Critic Scratchpad (M-RAT):** Internal debate mechanism pitting a generator persona against a critic persona to identify logical errors[cite: 22, 31].
+24. [ ] **Symbolic Branch Pruning (Symb-RATT):** Evaluates arithmetic and logic through an exact code checker, discarding any branch that fails execution[cite: 22, 31].
+25. [ ] **Speculative RAG Drafting:** Pre-fetches predicted factual lookups before they are explicitly requested[cite: 22, 31].
+26. [ ] **Keyless Web Scraper Fallback:** Performs anonymous fallback web queries to retrieve context when local knowledge stores are insufficient[cite: 22, 31].
 
 ---
 

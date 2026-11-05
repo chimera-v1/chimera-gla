@@ -9,11 +9,11 @@ class ChimeraDatasetStreamer:
     Uses heavy generator-based stream architecture yielding tightly packed chunks
     to enforce the Sub-200 MB RAM Promise. Keeps maximum active memory buffer ~5-10 MB.
     """
-    def __init__(self, data_dir: str, tokenizer, max_seq_length: int = 512):
+    def __init__(self, data_dir: str, tokenizer, max_seq_length: int = 512, curriculum_stages: List[str] = None):
         self.data_dir = data_dir
         self.tokenizer = tokenizer
         self.max_seq_length = max_seq_length
-        self.curriculum = ["language", "code", "math"]
+        self.curriculum = curriculum_stages if curriculum_stages is not None else ["real_pretrain", "language", "code", "math"]
 
     def _stream_file(self, file_path: str) -> Generator[str, None, None]:
         """Reads extremely large files line-by-line via memory-safe IO generator."""
@@ -30,7 +30,8 @@ class ChimeraDatasetStreamer:
         Packs strings tightly into fixed sequence length tensors.
         Triggers garbage collection (gc.collect()) aggressively.
         """
-        for domain in self.curriculum:
+        import itertools
+        for domain in itertools.cycle(self.curriculum):
             domain_path = os.path.join(self.data_dir, domain)
             if not os.path.exists(domain_path):
                 continue
@@ -52,6 +53,12 @@ class ChimeraDatasetStreamer:
                         buffer = buffer[self.max_seq_length + 1:]
                         yield chunk
                 
+                # If there are leftovers, pad them to exact length and yield
+                if len(buffer) > 0:
+                    pad_length = (self.max_seq_length + 1) - len(buffer)
+                    chunk = buffer + [0] * pad_length
+                    yield chunk
+
                 # Force memory cleanup after every single file processed
                 buffer.clear()
                 gc.collect()

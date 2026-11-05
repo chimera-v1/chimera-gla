@@ -3,7 +3,7 @@ import re
 class ChimeraTokenizer:
     """
     Max-Upgraded Chimera Tokenizer.
-    Custom Byte-Pair Encoding (BPE) stub prioritizing the 20,000 vocab limit.
+    Word-level encoding prioritizing the 20,000 vocab limit.
     Enforces strict digit isolation to prevent math hallucination and natively parses
     Python indentation loops.
     """
@@ -20,7 +20,9 @@ class ChimeraTokenizer:
             "</think>": 5,
             "<INDENT_2>": 6,
             "<INDENT_4>": 7,
-            "<INDENT_8>": 8
+            "<INDENT_8>": 8,
+            "<REASONING_START>": 9,
+            "<REASONING_END>": 10
         }
         
         self.vocab = self.special_tokens.copy()
@@ -37,7 +39,12 @@ class ChimeraTokenizer:
         """Simulated BPE training pass to build vocab dynamically up to vocab_size."""
         text = self._isolate_digits(text)
         text = self._format_indents(text)
-        for word in text.split():
+        
+        # Split by spaces, but we want to learn words WITH punctuation attached or split?
+        # A simple word-level split using regex to keep punctuation separate
+        words = re.findall(r"[\w']+|[.,!?;]", text)
+        
+        for word in words:
             if word not in self.vocab and len(self.vocab) < self.vocab_size:
                 idx = len(self.vocab)
                 self.vocab[word] = idx
@@ -67,14 +74,24 @@ class ChimeraTokenizer:
         text = self._format_indents(text)
         
         tokens = []
-        words = text.split()
         
-        for word in words:
-            if word in self.special_tokens:
-                tokens.append(self.vocab[word])
+        # We need to preserve spaces! 
+        # But since we are encoding whole words, we can just split by spaces and re-insert space tokens during decode.
+        # Let's extract words and special tags properly.
+        
+        # Pattern matches our special tokens OR normal words/punctuation OR spaces
+        special_keys = "|".join(re.escape(k) for k in self.special_tokens.keys())
+        pattern = f"({special_keys})|([\\w']+|[.,!?;])|( )"
+        
+        matches = re.finditer(pattern, text)
+        
+        for match in matches:
+            token_str = match.group(0)
+            if token_str in self.vocab:
+                tokens.append(self.vocab[token_str])
             else:
-                # Basic sub-word fallback
-                for char in word:
+                # Basic sub-word fallback for unknown words
+                for char in token_str:
                     tokens.append(self.vocab.get(char, self.vocab["<UNK>"]))
         return tokens
 
@@ -93,4 +110,4 @@ class ChimeraTokenizer:
                     pass # Ignore rendering structural reasoning tags in final output text
                 else:
                     output += token_str
-        return output.strip()
+        return output

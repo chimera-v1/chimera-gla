@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "rtx-training-node": {
+      "command": "ssh",
+      "args": [
+        "-o", "StrictHostKeyChecking=no",
+        "-o", "BatchMode=yes",
+        "vinay@192.168.68.122",
+        "C:\\Users\\vinay\\venv\\Scripts\\python.exe",
+        "C:\\ChimeraAI\\scripts\\rtx_mcp_server.py"
+      ]
+    }
+  }
+}

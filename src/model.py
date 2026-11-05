@@ -70,7 +70,7 @@ class ChimeraAttention(nn.Module):
         # Logic-Gated MLA Scalar: Learnable lock to protect critical facts
         self.logic_gate = nn.Parameter(torch.ones(1, num_heads, 1, 1))
 
-    def forward(self, x, pos, use_thinkv=True):
+    def forward(self, x, pos, use_thinkv=True, layer_idx=None, kv_cache=None):
         B, L, D = x.size()
         latent_kv = self.latent_proj(x)
         
@@ -86,6 +86,16 @@ class ChimeraAttention(nn.Module):
         k = k.repeat_interleave(self.num_heads // self.kv_heads, dim=2).transpose(1, 2)
         v = v.repeat_interleave(self.num_heads // self.kv_heads, dim=2).transpose(1, 2)
         
+        # --- KV Caching Injection ---
+        if kv_cache is not None and layer_idx is not None:
+            if layer_idx not in kv_cache:
+                kv_cache[layer_idx] = (k, v)
+            else:
+                past_k, past_v = kv_cache[layer_idx]
+                k = torch.cat([past_k, k], dim=2)
+                v = torch.cat([past_v, v], dim=2)
+                kv_cache[layer_idx] = (k, v)
+        
         # Attention Calculation
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim)
         
@@ -93,7 +103,10 @@ class ChimeraAttention(nn.Module):
         scores = scores * self.logic_gate
         
         # Causal Masking
-        causal_mask = torch.triu(torch.ones((L, L), device=x.device, dtype=torch.bool), diagonal=1)
+        seq_len_q = q.size(2)
+        seq_len_k = k.size(2)
+        causal_mask = torch.ones((seq_len_q, seq_len_k), device=x.device, dtype=torch.bool)
+        causal_mask = torch.triu(causal_mask, diagonal=1 + (seq_len_k - seq_len_q))
         scores.masked_fill_(causal_mask.unsqueeze(0).unsqueeze(0), float('-inf'))
         
         # GQA + Sparse Attention Hybrid (Top-32 piece isolation)
@@ -148,11 +161,11 @@ class ChimeraBlock(nn.Module):
         self.norm1 = nn.LayerNorm(dim)
         self.norm2 = nn.LayerNorm(dim)
         
-    def forward(self, x, pos, use_ssm=False):
+    def forward(self, x, pos, use_ssm=False, layer_idx=None, kv_cache=None):
         if use_ssm:
             x = x + self.ssm(self.norm1(x))
         else:
-            x = x + self.attn(self.norm1(x), pos)
+            x = x + self.attn(self.norm1(x), pos, layer_idx=layer_idx, kv_cache=kv_cache)
             
         route_mask, _ = self.mod_router(x)
         x = x + route_mask * self.mlp(self.norm2(x))
@@ -199,29 +212,35 @@ class ChimeraModel(nn.Module):
         self.REASONING_START_ID = 4
         self.REASONING_END_ID = 5
 
-    def forward(self, x, use_ssm=False):
+    def forward(self, x, use_ssm=False, kv_cache=None, start_pos=0):
         # 1. Hardware Adaptation
         x = self.throttler.throttle(x)
         
         B, L = x.size()
         embeds = self.embed(x)
         
-        # 2. Scratchpad Injection
-        scratchpad = self.scratchpad.expand(B, -1, -1)
-        hidden = torch.cat([scratchpad, embeds], dim=1)
-        
-        total_L = hidden.size(1)
-        pos = torch.arange(total_L, device=x.device)
+        # 2. Scratchpad Injection (Only on initial prefill)
+        if start_pos == 0:
+            scratchpad = self.scratchpad.expand(B, -1, -1)
+            hidden = torch.cat([scratchpad, embeds], dim=1)
+            total_L = hidden.size(1)
+            pos = torch.arange(0, total_L, device=x.device)
+        else:
+            hidden = embeds
+            pos = torch.arange(start_pos + 32, start_pos + 32 + L, device=x.device) # Offset by scratchpad size
         
         # 3. Recurrent Weight-Sharing Loop: 6 layers traversed 3 times = 18 effective layers
+        layer_idx_counter = 0
         for loop_idx in range(3):
             for layer in self.layers:
-                hidden = layer(hidden, pos, use_ssm)
+                hidden = layer(hidden, pos, use_ssm=use_ssm, layer_idx=layer_idx_counter, kv_cache=kv_cache)
+                layer_idx_counter += 1
                 
         hidden = self.norm(hidden)
         
-        # Strip scratchpad prior to classification head
-        hidden = hidden[:, 32:, :]
+        # Strip scratchpad prior to classification head (only if prefilling)
+        if start_pos == 0:
+            hidden = hidden[:, 32:, :]
         
         logits = self.head(hidden)
         return logits

@@ -1,6 +1,6 @@
 param(
-    [string]$RemoteHost = "192.168.68.116",
-    [string]$RemoteUser = "Admin",
+    [string]$RemoteHost = "192.168.68.122",
+    [string]$RemoteUser = "vinay",
     [string]$DurationHours = "1"
 )
 
