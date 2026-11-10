@@ -73,6 +73,15 @@ def _truncate(text: str, limit: int) -> str:
     return text[: limit - 3].rstrip() + "..."
 
 
+def _clean_assistant_summary(text: str) -> str:
+    """Strip internal reasoning tags so shared briefs focus on final deliverables."""
+    if not text:
+        return ""
+    cleaned = re.sub(r"<REASONING>.*?</REASONING>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    cleaned = re.sub(r"<think>.*?</think>", "", cleaned, flags=re.DOTALL | re.IGNORECASE)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
 def _clean_arg_value(val: Any) -> str:
     if isinstance(val, str):
         # Transcript tool_call args sometimes serialize strings with outer quotes.
@@ -415,8 +424,9 @@ class ContextHub:
                     role = "assistant"
                     tool_summaries, step_files = extract_tool_metadata(entry.get("tool_calls"))
                     stored_content = _truncate(raw_content.strip(), 1500)
-                    if stored_content:
-                        last_assistant_summary = _truncate(stored_content, 600)
+                    clean_summary = _clean_assistant_summary(raw_content)
+                    if clean_summary:
+                        last_assistant_summary = _truncate(clean_summary, 600)
                     for path in step_files:
                         if path not in files_touched:
                             files_touched.append(path)
@@ -589,7 +599,7 @@ class ContextHub:
             FROM conversations
             WHERE conversation_id != ?
               AND updated_at > ?
-              AND (? = 'global' OR workspace = ? OR workspace = 'global')
+              AND (? = 'global' OR workspace = ?)
             ORDER BY updated_at DESC
             LIMIT 4
             """,
@@ -672,7 +682,7 @@ class ContextHub:
                    last_assistant_summary, files_touched_json, updated_at
             FROM conversations
             WHERE conversation_id != ?
-              AND (? = 'global' OR workspace = ? OR workspace = 'global')
+              AND (? = 'global' OR workspace = ?)
               AND (last_user_input != '' OR last_assistant_summary != '')
             ORDER BY updated_at DESC
             LIMIT ?
