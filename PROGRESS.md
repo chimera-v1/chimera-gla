@@ -20,6 +20,9 @@
    - Consolidated full-time development and training onto the RTX 5060 laptop (`192.168.68.115`) at `C:\Users\vinay\ChimeraAI` (outside OneDrive to prevent `.git` and checkpoint sync corruption).
    - Updated remote orchestration scripts (`scripts/remote_train.ps1`, `scripts/remote_train.sh`, `scripts/sync_only.sh`, `scripts/rtx_mcp_server.py`, `.agents/mcp_config.json`) to target `192.168.68.115` and resolve paths dynamically.
    - Transferred full offline datasets (`data/`), active checkpoints (`checkpoints/`), and repository state to `C:\Users\vinay\ChimeraAI` via SSH/SCP.
+7. **Antigravity Cross-Chat Shared Context Bridge (`chimera-context-bridge`):**
+   - Built an offline, zero-dependency SQLite + FTS5 cross-chat memory engine (`scripts/context_hub.py`), lifecycle hook handler (`scripts/context_hook.py` supporting `SessionStart`, `PreInvocation`, `PostToolUse`, `Stop`), and local MCP stdio server (`scripts/context_mcp_server.py`).
+   - Added automated Antigravity plugin installer (`scripts/install_context_bridge.py`) and end-to-end test suite (`scripts/test_context_bridge.py`) so all parallel and future Antigravity chats share live project context, edited files, and pinned decisions.
 
 ## Existing Blockers
 - None at the moment. Waiting to commence the next long training run.
