@@ -1,6 +1,7 @@
 import asyncio
 import subprocess
 import os
+import sys
 from mcp.server import Server, NotificationOptions
 from mcp.server.stdio import stdio_server
 import mcp.types as types
@@ -36,10 +37,11 @@ async def handle_list_tools() -> list[types.Tool]:
 async def handle_call_tool(name: str, arguments: dict | None) -> list[types.TextContent]:
     if name == "trigger_remote_training":
         duration = arguments.get("duration_hours", 1)
-        os.chdir(r"C:\ChimeraAI")
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        os.chdir(repo_root)
         # Run detached
         subprocess.Popen(
-            [r"C:\Users\vinay\venv\Scripts\python.exe", r"src\train.py", "--duration_hours", str(duration)],
+            [sys.executable, os.path.join("src", "train.py"), "--duration_hours", str(duration)],
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
         return [types.TextContent(type="text", text=f"SUCCESS: Remote training loop detached and started on RTX GPU for {duration} hours.")]

@@ -16,9 +16,10 @@
    - Generated the physical data streams into `data/code` and `data/math`.
 5. **Generative Teacher Enhancement:**
    - Added Test 8 (Anti-Memorization Brain Check) to `scorer.py` to rigorously verify the model is dynamically extracting novel facts from the Vector DB buffer rather than repeating memorized parameters.
-6. **Dev Machine Migration to macOS:**
-   - Authored native POSIX bash scripts (`scripts/remote_train.sh` and `scripts/sync_only.sh`) enabling seamless remote training triggers from macOS to the Windows RTX 5060 training node.
-   - Prepared migration plan for repository and offline data/checkpoint assets.
+6. **Full-Time Dev & Training Migration to RTX 5060 Node (`192.168.68.115`):**
+   - Consolidated full-time development and training onto the RTX 5060 laptop (`192.168.68.115`) at `C:\Users\vinay\ChimeraAI` (outside OneDrive to prevent `.git` and checkpoint sync corruption).
+   - Updated remote orchestration scripts (`scripts/remote_train.ps1`, `scripts/remote_train.sh`, `scripts/sync_only.sh`, `scripts/rtx_mcp_server.py`, `.agents/mcp_config.json`) to target `192.168.68.115` and resolve paths dynamically.
+   - Transferred full offline datasets (`data/`), active checkpoints (`checkpoints/`), and repository state to `C:\Users\vinay\ChimeraAI` via SSH/SCP.
 
 ## Existing Blockers
 - None at the moment. Waiting to commence the next long training run.

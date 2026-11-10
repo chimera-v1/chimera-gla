@@ -1,5 +1,5 @@
 param(
-    [string]$RemoteHost = "192.168.68.122",
+    [string]$RemoteHost = "192.168.68.115",
     [string]$RemoteUser = "vinay",
     [string]$DurationHours = "1"
 )
@@ -8,7 +8,7 @@ Write-Host "[Agentic Execution Loop] Establishing unattended SSH to $RemoteUser@
 
 # Using StrictHostKeyChecking=no and BatchMode=yes for unattended SSH
 $sshCommand = @"
-cd C:\Users\Admin\OneDrive\Desktop\ChimeraAI\
+cd C:\Users\vinay\ChimeraAI\
 Write-Host 'Connected. Pulling latest architecture...'
 git pull origin main
 
@@ -20,6 +20,8 @@ if (-not (Test-Path checkpoints)) { New-Item -ItemType Directory -Path checkpoin
 Write-Host 'Activating virtual environment and starting training loop...'
 if (Test-Path venv\Scripts\Activate.ps1) {
     . venv\Scripts\Activate.ps1
+} elseif (Test-Path C:\Users\vinay\venv\Scripts\Activate.ps1) {
+    . C:\Users\vinay\venv\Scripts\Activate.ps1
 }
 
 python src\train.py --duration_hours $DurationHours

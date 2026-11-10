@@ -8,7 +8,7 @@
 
 set -e
 
-REMOTE_HOST="${1:-${RTX_HOST:-192.168.68.122}}"
+REMOTE_HOST="${1:-${RTX_HOST:-192.168.68.115}}"
 REMOTE_USER="${2:-${RTX_USER:-vinay}}"
 
 echo "========================================================"
@@ -16,7 +16,7 @@ echo " [Sync Mode] Initiating ChimeraAI Cloud Sync on RTX Node"
 echo " Target: ${REMOTE_USER}@${REMOTE_HOST}"
 echo "========================================================"
 
-REMOTE_CMD="cd C:\Users\Admin\OneDrive\Desktop\ChimeraAI\; \
+REMOTE_CMD="cd C:\Users\vinay\ChimeraAI\; \
 Write-Host '1. Pulling latest architecture updates from GitHub...'; \
 git pull origin main; \
 Write-Host '========================================='; \
